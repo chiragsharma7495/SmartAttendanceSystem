@@ -35,4 +35,12 @@ public class AuthServiceImpl implements AuthService{
                 token , "Bearer", user.getId(), user.getEmail(), user.getRole()
         );
     }
+
+    @Override
+    public LoginResponse getCurrentUser(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new InvalidCredentialsException("User not found"));
+
+        return new LoginResponse(null , "Bearer" , user.getId() , user.getEmail(),  user.getRole());
+    }
 }
