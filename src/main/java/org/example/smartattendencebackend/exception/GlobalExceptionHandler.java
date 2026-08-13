@@ -62,7 +62,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({ResourceAlreadyExistException.class , DuplicateAttendanceException.class})
     public ResponseEntity<ErrorResponse> handleResourceAlreadyExistException(
-            ResourceAlreadyExistException ex,
+            RuntimeException ex,
             HttpServletRequest request) {
 
         ErrorResponse errorResponse = new ErrorResponse();
@@ -73,6 +73,19 @@ public class GlobalExceptionHandler {
         errorResponse.setPath(request.getRequestURI());
 
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler({QrAttendanceException.class, IllegalArgumentException.class})
+    public ResponseEntity<ErrorResponse> handleBadRequest(
+            RuntimeException ex,
+            HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setTimestamp(LocalDateTime.now());
+        errorResponse.setStatus(HttpStatus.BAD_REQUEST.value());
+        errorResponse.setError(HttpStatus.BAD_REQUEST.getReasonPhrase());
+        errorResponse.setMessage(ex.getMessage());
+        errorResponse.setPath(request.getRequestURI());
+        return ResponseEntity.badRequest().body(errorResponse);
     }
 
     @ExceptionHandler(InvalidPaginationException.class )

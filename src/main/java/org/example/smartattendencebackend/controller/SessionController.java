@@ -38,7 +38,7 @@ public class SessionController {
     public ResponseEntity<PagedResponse<SessionResponse>> getAllSessions(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "sessionId") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirection
     ) {
 

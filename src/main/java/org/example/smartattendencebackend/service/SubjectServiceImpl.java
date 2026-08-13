@@ -195,6 +195,7 @@ public class SubjectServiceImpl implements SubjectService {
         response.setName(subject.getName());
         response.setCode(subject.getCode());
         response.setDepartmentName(subject.getDepartment().getName());
+        response.setTeacherId(subject.getTeacher().getId());
         response.setTeacherName(
                 subject.getTeacher().getFirstName()
                         + " "

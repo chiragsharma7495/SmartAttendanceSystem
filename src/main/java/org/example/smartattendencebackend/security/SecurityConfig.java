@@ -60,8 +60,11 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/health").permitAll()
 
                         // Attendance
-                        .requestMatchers(HttpMethod.GET , "/api/attendance/**")
+                        .requestMatchers(HttpMethod.GET, "/api/attendance/student/*")
                         .hasAnyRole("STUDENT" , "TEACHER" , "ADMIN")
+
+                        .requestMatchers(HttpMethod.GET , "/api/attendance/**")
+                        .hasAnyRole("TEACHER" , "ADMIN")
 
                         .requestMatchers(HttpMethod.POST , "/api/attendance/**")
                         .hasAnyRole("TEACHER" , "ADMIN")
@@ -71,6 +74,16 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.DELETE, "/api/attendance/**")
                         .hasRole("ADMIN")
+
+                        // QR attendance (no location or device tracking)
+                        .requestMatchers(HttpMethod.POST, "/api/qr-attendance/generate")
+                        .hasAnyRole("TEACHER", "ADMIN")
+
+                        .requestMatchers(HttpMethod.POST, "/api/qr-attendance/claim")
+                        .hasRole("STUDENT")
+
+                        .requestMatchers(HttpMethod.POST, "/api/qr-attendance/*/close")
+                        .hasAnyRole("TEACHER", "ADMIN")
 
                         // Students
                         .requestMatchers(

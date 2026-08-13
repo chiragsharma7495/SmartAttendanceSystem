@@ -10,15 +10,16 @@ import org.example.smartattendencebackend.dto.response.AttendanceResponse;
 import org.example.smartattendencebackend.dto.response.PagedResponse;
 import org.example.smartattendencebackend.dto.response.StudentAttendanceReportResponse;
 import org.example.smartattendencebackend.entity.AttendanceStatus;
-import org.example.smartattendencebackend.repository.AttendanceRepository;
+import org.example.smartattendencebackend.repository.UserRepository;
 import org.example.smartattendencebackend.service.AttendanceService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @RequestMapping("/api/attendance")
 @RestController
@@ -26,6 +27,7 @@ import java.util.List;
 public class AttendanceController {
 
     private final AttendanceService attendanceService;
+    private final UserRepository userRepository;
 
     @PostMapping
     public ResponseEntity<AttendanceResponse> createAttendance(@Valid @RequestBody CreateAttendanceRequest request) {
@@ -78,7 +80,15 @@ public class AttendanceController {
             @RequestParam(defaultValue = "0") int pageNumber,
             @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam(defaultValue = "attendanceDate") String sortBy,
-            @RequestParam(defaultValue = "Desc") String sortDirection) {
+            @RequestParam(defaultValue = "Desc") String sortDirection,
+            Authentication authentication) {
+
+        userRepository.findByEmail(authentication.getName()).ifPresent(user -> {
+            if (user.getRole() == org.example.smartattendencebackend.entity.Role.STUDENT
+                    && !user.getId().equals(studentId)) {
+                throw new AccessDeniedException("Students can view only their own attendance.");
+            }
+        });
 
         return ResponseEntity.ok(
                 attendanceService.getAttendanceByStudent(studentId, pageNumber, pageSize, sortBy, sortDirection)

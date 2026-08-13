@@ -27,7 +27,7 @@ public class SessionServiceImpl implements SessionService {
     private final SessionRepository sessionRepository;
 
     private static final Set<String> SESSION_SORT_FIELDS =
-            Set.of("id", "name");
+            Set.of("sessionId", "sessionName", "startYear", "endYear");
 
     @Override
     public SessionResponse createSession(CreateSessionRequest request) {
