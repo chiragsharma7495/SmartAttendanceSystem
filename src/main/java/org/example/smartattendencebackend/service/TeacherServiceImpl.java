@@ -14,6 +14,7 @@ import org.example.smartattendencebackend.exception.TeacherInUseException;
 import org.example.smartattendencebackend.exception.TeacherNotFoundException;
 import org.example.smartattendencebackend.repository.DepartmentRepository;
 import org.example.smartattendencebackend.repository.TeacherRepository;
+import org.example.smartattendencebackend.repository.UserRepository;
 import org.example.smartattendencebackend.util.PaginationUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -30,6 +31,7 @@ import java.util.Set;
 public class TeacherServiceImpl implements TeacherService {
 
     private final TeacherRepository teacherRepository;
+    private final UserRepository userRepository;
     private final DepartmentRepository departmentRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -39,12 +41,15 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     public TeacherResponse createTeacher(CreateTeacherRequest request) {
 
-        if(teacherRepository.existsByEmail(request.getEmail())){
-            throw new TeacherAlreadyExistException("Teacher with email " + request.getEmail() + " already exists");
+        String email = request.getEmail().trim().toLowerCase();
+        String employeeId = request.getEmployeeId().trim();
+
+        if(userRepository.existsByEmail(email)){
+            throw new TeacherAlreadyExistException("An account with email " + email + " already exists");
         }
 
-        if(teacherRepository.existsByEmployeeId(request.getEmployeeId())){
-            throw new TeacherAlreadyExistException("Teacher with Employee ID " + request.getEmployeeId() + " already exist");
+        if(teacherRepository.existsByEmployeeId(employeeId)){
+            throw new TeacherAlreadyExistException("Teacher with Employee ID " + employeeId + " already exists");
         }
 
         // fetch existing department from database
@@ -53,11 +58,11 @@ public class TeacherServiceImpl implements TeacherService {
 
         // Request DTO
         Teacher teacher = new Teacher();
-        teacher.setFirstName(request.getFirstName());
-        teacher.setLastName(request.getLastName());
-        teacher.setEmail(request.getEmail());
+        teacher.setFirstName(request.getFirstName().trim());
+        teacher.setLastName(request.getLastName().trim());
+        teacher.setEmail(email);
         teacher.setPassword(passwordEncoder.encode(request.getPassword()));
-        teacher.setEmployeeId(request.getEmployeeId());
+        teacher.setEmployeeId(employeeId);
         teacher.setDepartment(department);
         teacher.setRole(Role.TEACHER);
 

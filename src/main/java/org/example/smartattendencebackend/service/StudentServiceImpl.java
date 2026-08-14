@@ -13,6 +13,7 @@ import org.example.smartattendencebackend.exception.*;
 import org.example.smartattendencebackend.repository.DepartmentRepository;
 import org.example.smartattendencebackend.repository.SessionRepository;
 import org.example.smartattendencebackend.repository.StudentRepository;
+import org.example.smartattendencebackend.repository.UserRepository;
 import org.example.smartattendencebackend.util.PaginationUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -28,6 +29,7 @@ import java.util.Set;
 public class StudentServiceImpl implements StudentService {
 
     private final StudentRepository studentRepository;
+    private final UserRepository userRepository;
     private final DepartmentRepository departmentRepository;
     private final SessionRepository sessionRepository;
     private final PasswordEncoder passwordEncoder;
@@ -40,12 +42,15 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public StudentResponse createStudent(CreateStudentRequest request) {
 
-        if(studentRepository.existsByEmail(request.getEmail())){
-            throw new StudentAlreadyExistException("Student with email " + request.getEmail() + " already exists");
+        String email = request.getEmail().trim().toLowerCase();
+        String rollNumber = request.getRollNumber().trim();
+
+        if(userRepository.existsByEmail(email)){
+            throw new StudentAlreadyExistException("An account with email " + email + " already exists");
         }
 
-        if(studentRepository.existsByRollNumber(request.getRollNumber())){
-            throw new StudentAlreadyExistException("Student with roll number " + request.getRollNumber() + " already exists");
+        if(studentRepository.existsByRollNumber(rollNumber)){
+            throw new StudentAlreadyExistException("Student with roll number " + rollNumber + " already exists");
         }
 
         // 2. Fetch existing Department and Session from database (Example using repositories)
@@ -59,11 +64,11 @@ public class StudentServiceImpl implements StudentService {
 
     // 3. Request DTO
         Student student = new Student();
-        student.setFirstName(request.getFirstName());
-        student.setLastName(request.getLastName());
-        student.setEmail(request.getEmail());
+        student.setFirstName(request.getFirstName().trim());
+        student.setLastName(request.getLastName().trim());
+        student.setEmail(email);
         student.setPassword(passwordEncoder.encode(request.getPassword()));
-        student.setRollNumber(request.getRollNumber());
+        student.setRollNumber(rollNumber);
         student.setDepartment(department); // set database-managed department
         student.setSession(session);
         student.setRole(Role.STUDENT);

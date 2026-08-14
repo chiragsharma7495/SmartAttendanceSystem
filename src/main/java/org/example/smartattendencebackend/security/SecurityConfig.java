@@ -50,6 +50,11 @@ public class SecurityConfig {
 
                         // Public authentication endpoints
                         .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/register/student").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/register/teacher").permitAll()
+
+                        // Registration dropdown data
+                        .requestMatchers(HttpMethod.GET, "/api/department", "/api/session").permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
